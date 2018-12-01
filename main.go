@@ -13,7 +13,7 @@ func main() {
 	app.Name = "meaningless"
 	app.Usage = "🙄"
 	app.UsageText = "🙄"
-	app.Version = "v0.1.0"
+	app.Version = "v0.1.1"
 	app.Action = func(c *cli.Context) error {
 		fmt.Println("😀 < Hi. Do you like 🍣?")
 		return nil
