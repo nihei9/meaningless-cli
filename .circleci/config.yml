@@ -29,4 +29,5 @@ workflows:
     jobs:
       - test_and_build
       - release:
-          requires: test_and_build
+          requires:
+            - test_and_build
