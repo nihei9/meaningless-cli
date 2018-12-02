@@ -9,7 +9,7 @@ jobs:
       - run: 
           name: "Test and Build"
           command: |
-            GO111MODULE=on
+            export GO111MODULE=on
             go test -v ./...
             go build -o meaningless ./main.go
             ./meaningless --version
