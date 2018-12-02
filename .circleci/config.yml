@@ -11,6 +11,8 @@ jobs:
           command: |
             go get -v -t -d ./...
             go test -v ./...
+            go env
+            echo $GO111MODULE
             go build -o meaningless ./main.go
             ./meaningless --version
       - run:
