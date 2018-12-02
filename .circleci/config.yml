@@ -3,13 +3,13 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.11
-    working_directory: /go/src/github.com/nihei9/meaningless-cli
     steps:
       - checkout
       - run: 
           name: "Test and Build"
+          environment:
+            - GO111MODULE: "on"
           command: |
-            export GO111MODULE=on
             go test -v ./...
             go build -o meaningless ./main.go
             ./meaningless --version
