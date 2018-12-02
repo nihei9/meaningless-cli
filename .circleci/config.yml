@@ -17,14 +17,26 @@ jobs:
           root: .
           paths:
             - .
-  release:
+  publish_dev_release:
     docker:
       - image: circleci/golang:1.11
     steps:
       - attach_workspace:
           at: .
       - run:
-          name: "Publish Release on GitHub"
+          name: "Publish Development Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            VERSION=$(echo ${CIRCLE_SHA1} | cut -b 1-8)
+            ghr -t ${GITHUB_TOKEN} -c ${CIRCLE_SHA1} -delete ${VERSION} meaningless
+  publish_prd_release:
+    docker:
+      - image: circleci/golang:1.11
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: "Publish Production Release on GitHub"
           command: |
             go get github.com/tcnksm/ghr
             VERSION=$(./meaningless --version | sed -e "s/^.*\(v[0-9]\{1,\}.[0-9]\{1,\}.[0-9]\{1,\}\)$/\1/")
@@ -34,6 +46,9 @@ workflows:
   build_and_release:
     jobs:
       - test_and_build
-      - release:
+      - publish_dev_release:
+          requires:
+            - test_and_build
+      - publish_prd_release:
           requires:
             - test_and_build
