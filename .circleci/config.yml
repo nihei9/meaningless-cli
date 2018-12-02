@@ -13,10 +13,16 @@ jobs:
             go test -v ./...
             go build -o meaningless ./main.go
             ./meaningless --version
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
   release:
     docker:
       - image: circleci/golang:1.11
     steps:
+      - attach_workspace:
+          at: .
       - run:
           name: "Publish Release on GitHub"
           command: |
