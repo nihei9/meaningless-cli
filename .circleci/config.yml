@@ -1,0 +1,54 @@
+version: 2
+jobs:
+  test_and_build:
+    docker:
+      - image: circleci/golang:1.11
+    steps:
+      - checkout
+      - run: 
+          name: "Test and Build"
+          environment:
+            - GO111MODULE: "on"
+          command: |
+            go test -v ./...
+            go build -o meaningless ./main.go
+            ./meaningless --version
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  publish_dev_release:
+    docker:
+      - image: circleci/golang:1.11
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: "Publish Development Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            VERSION=$(echo ${CIRCLE_SHA1} | cut -b 1-8)
+            ghr -t ${GITHUB_TOKEN} -c ${CIRCLE_SHA1} -delete ${VERSION} meaningless
+  publish_prd_release:
+    docker:
+      - image: circleci/golang:1.11
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: "Publish Production Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            VERSION=$(./meaningless --version | sed -e "s/^.*\(v[0-9]\{1,\}.[0-9]\{1,\}.[0-9]\{1,\}\)$/\1/")
+            ghr -t ${GITHUB_TOKEN} -c ${CIRCLE_SHA1} -delete ${VERSION} meaningless
+workflows:
+  version: 2
+  build_and_release:
+    jobs:
+      - test_and_build
+      - publish_dev_release:
+          requires:
+            - test_and_build
+      - publish_prd_release:
+          requires:
+            - test_and_build
